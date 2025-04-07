@@ -24,7 +24,27 @@ public class PrefixTree {
      * @param word
      */
     public void add(String word){
-        //TODO: complete me
+        if(!contains(word)){
+            TreeNode parentNode = root;
+            for(int i = 0; i < word.length(); i++){
+                char currentChar = word.charAt(i);
+                if(!parentNode.children.containsKey(currentChar)){
+                    TreeNode newNode = new TreeNode();
+                    newNode.letter = currentChar;
+                    if(i == word.length() - 1){
+                        newNode.isWord = true;
+                    }
+                    parentNode.children.put(currentChar, newNode);
+                    parentNode = newNode;
+                }
+                else{
+                    parentNode = parentNode.children.get(currentChar);
+                }
+                
+            }
+            size++;
+        }
+        
     }
 
     /**
@@ -33,7 +53,22 @@ public class PrefixTree {
      * @return true if contained in the tree.
      */
     public boolean contains(String word){
-        //TODO: complete me
+        TreeNode parentNode = root;
+        for(int i = 0; i < word.length(); i++){
+            char currentChar = word.charAt(i);
+            TreeNode currentNode = parentNode.children.get(currentChar);
+            if(parentNode.children.containsKey(currentChar) && currentNode.isWord && i == word.length()-1){
+                return true;
+            }
+            else{
+                if(!parentNode.children.containsKey(currentChar)){
+                    return false;
+                }
+                else{
+                    parentNode = currentNode;
+                }
+            }
+        }
         return false;
     }
 
@@ -44,8 +79,37 @@ public class PrefixTree {
      * @return list of words with prefix
      */
     public ArrayList<String> getWordsForPrefix(String prefix){
-        //TODO: complete me
-        return null;
+        ArrayList<String> words = new ArrayList<String>();
+        TreeNode parentNode = root;
+        TreeNode prefixNode = null;
+        for(int i = 0; i < prefix.length(); i++){
+            char currentChar = prefix.charAt(i);
+            TreeNode currentNode = parentNode.children.get(currentChar);
+            if(currentNode == null){
+                return words;
+            }
+            if(i == prefix.length() - 1){
+                prefixNode = currentNode;
+                break;
+            }
+            parentNode = currentNode;
+        }
+        String sb = prefix.substring(0, prefix.length()-1);
+        if(prefixNode == null || prefixNode.children.isEmpty()){
+            return words;
+        }
+        preOrderTraverse(words, prefixNode, sb);
+        return words;
+    }
+
+    private void preOrderTraverse(ArrayList<String> words, TreeNode node, String sb){
+        sb = sb + node.letter;
+        if(node.isWord){
+            words.add(sb);
+        }
+        for(char letter: node.children.keySet()){
+            preOrderTraverse(words, node.children.get(letter), sb);
+        }
     }
 
     /**
